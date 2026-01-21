@@ -1,0 +1,104 @@
+name: Code Analysis
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        language: [python, javascript, java, cpp, go, rust]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Detect programming language
+      id: detect-language
+      run: |
+        # Простой детектор языка по расширениям файлов
+        if find . -name "*.py" | grep -q .; then
+          echo "LANGUAGE=python" >> $GITHUB_OUTPUT
+        elif find . -name "*.js" | grep -q .; then
+          echo "LANGUAGE=javascript" >> $GITHUB_OUTPUT
+        elif find . -name "*.java" | grep -q .; then
+          echo "LANGUAGE=java" >> $GITHUB_OUTPUT
+        elif find . -name "*.cpp" -o -name "*.c" | grep -q .; then
+          echo "LANGUAGE=cpp" >> $GITHUB_OUTPUT
+        elif find . -name "*.go" | grep -q .; then
+          echo "LANGUAGE=go" >> $GITHUB_OUTPUT
+        elif find . -name "*.rs" | grep -q .; then
+          echo "LANGUAGE=rust" >> $GITHUB_OUTPUT
+        else
+          echo "LANGUAGE=unknown" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Setup Python
+      if: steps.detect-language.outputs.LANGUAGE == 'python'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Python Code Analysis
+      if: steps.detect-language.outputs.LANGUAGE == 'python'
+      run: |
+        pip install flake8 pylint mypy bandit black
+        echo "=== Running flake8 ==="
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        echo "=== Running pylint ==="
+        pylint $(find . -name "*.py") --exit-zero || true
+        echo "=== Running bandit ==="
+        bandit -r . -f json -o bandit-report.json || true
+        echo "=== Checking code formatting with black ==="
+        black --check . || true
+    
+    - name: Setup Node.js
+      if: steps.detect-language.outputs.LANGUAGE == 'javascript'
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: JavaScript Code Analysis
+      if: steps.detect-language.outputs.LANGUAGE == 'javascript'
+      run: |
+        npm install -g eslint
+        echo "=== Running ESLint ==="
+        npx eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
+    
+    - name: Setup Java
+      if: steps.detect-language.outputs.LANGUAGE == 'java'
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Java Code Analysis
+      if: steps.detect-language.outputs.LANGUAGE == 'java'
+      run: |
+        echo "=== Checking Java files ==="
+        find . -name "*.java" | wc -l
+    
+    - name: Setup C/C++
+      if: steps.detect-language.outputs.LANGUAGE == 'cpp'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ clang cppcheck
+    
+    - name: C/C++ Code Analysis
+      if: steps.detect-language.outputs.LANGUAGE == 'cpp'
+      run: |
+        echo "=== Running cppcheck ==="
+        cppcheck --enable=all --suppress=missingIncludeSystem . || true
+    
+    - name: Upload Analysis Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-analysis-results
+        path: |
+          bandit-report.json
+          eslint-report.json
+        retention-days: 7
