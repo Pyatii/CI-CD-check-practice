@@ -5,25 +5,28 @@ services:
     build: 
       context: ./backend
       dockerfile: Dockerfile
+    container_name: code-checker-backend
     ports:
       - "5000:5000"
     environment:
       - NODE_ENV=development
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-test_token}
+      - GITHUB_USERNAME=${GITHUB_USERNAME:-test_user}
     volumes:
       - ./backend:/app
-      - /app/node_modules  # изолируем node_modules от хоста
-    working_dir: /app
+      - /app/node_modules
     restart: unless-stopped
-    command: npm run dev  # используем nodemon для разработки
+    command: npm run dev
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: code-checker-frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
     restart: unless-stopped
