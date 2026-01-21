@@ -2,19 +2,26 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_USERNAME=${GITHUB_USERNAME}
     volumes:
-      - ./uploads:/app/uploads
+      - ./backend:/app
+      - /app/node_modules  # изолируем node_modules от хоста
+    working_dir: /app
     restart: unless-stopped
+    command: npm run dev  # используем nodemon для разработки
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:80"
     depends_on:
