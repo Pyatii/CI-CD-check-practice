@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Analyzer - Upload & Analyze Your Code</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-code"></i> Code Analyzer</h1>
+            <p>Upload your code files and analyze them with GitHub Actions</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop Your Code Files</h3>
+                    <p>Supports: Python, JavaScript, Java, C++, C, Go, Rust, TypeScript, PHP, Ruby</p>
+                    <input type="file" id="fileInput" accept=".py,.js,.java,.cpp,.c,.go,.rs,.ts,.php,.rb">
+                    <label for="fileInput" class="btn">Choose File</label>
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="analyzeBtn" class="btn analyze-btn" disabled>
+                    <i class="fas fa-play"></i> Analyze Code
+                </button>
+                <button id="githubBtn" class="btn github-btn" disabled>
+                    <i class="fab fa-github"></i> Run with GitHub Actions
+                </button>
+            </div>
+
+            <div class="results-section">
+                <h2><i class="fas fa-chart-bar"></i> Analysis Results</h2>
+                <div class="results-container">
+                    <div class="results-placeholder" id="resultsPlaceholder">
+                        <i class="fas fa-search"></i>
+                        <p>Upload a file and click "Analyze Code" to see results</p>
+                    </div>
+                    <div class="results-content" id="resultsContent" style="display: none;">
+                        <div class="results-header">
+                            <h3 id="fileName">File: example.py</h3>
+                            <div class="status-badge" id="statusBadge">
+                                <i class="fas fa-circle"></i> Pending
+                            </div>
+                        </div>
+                        
+                        <div class="tabs">
+                            <button class="tab active" data-tab="static">Static Analysis</button>
+                            <button class="tab" data-tab="github">GitHub Actions</button>
+                            <button class="tab" data-tab="metrics">Metrics</button>
+                        </div>
+                        
+                        <div class="tab-content active" id="staticTab">
+                            <div class="findings" id="staticFindings"></div>
+                        </div>
+                        
+                        <div class="tab-content" id="githubTab">
+                            <div class="github-info" id="githubInfo">
+                                <p><i class="fas fa-info-circle"></i> GitHub Actions analysis will appear here</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="metricsTab">
+                            <div class="metrics-grid" id="metricsGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Code Analyzer &copy; 2023 | Powered by GitHub Actions & Docker</p>
+        </footer>
+    </div>
+
+    <div class="modal" id="loadingModal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <h3>Analyzing Code...</h3>
+            <p id="loadingMessage">Running static analysis and GitHub Actions</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
