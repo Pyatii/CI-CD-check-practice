@@ -1,20 +1,12 @@
-FROM node:18-alpine
+FROM python:3.9-slim
+
 WORKDIR /app
 
-# Копируем package.json отдельно для кэширования
-COPY package*.json ./
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем зависимости
-RUN npm install
-
-# Копируем остальной код
 COPY . .
 
-# Создаем директорию для загрузок
-RUN mkdir -p uploads
-
-# Открываем порт
 EXPOSE 5000
 
-# Запускаем с nodemon для разработки
-CMD ["npm", "run", "dev"]
+CMD ["python", "app.py"]
