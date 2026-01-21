@@ -1,17 +1,14 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# Копируем package.json отдельно для кэширования зависимостей
+# Копируем package.json
 COPY package*.json ./
 
-# Сначала устанавливаем все зависимости (включая dev)
+# Устанавливаем зависимости (включая dev для разработки)
 RUN npm install
 
-# Затем копируем исходный код
+# Копируем остальной код
 COPY . .
-
-# Создаем production сборку (если нужно)
-# RUN npm run build
 
 EXPOSE 5000
 CMD ["node", "server.js"]
